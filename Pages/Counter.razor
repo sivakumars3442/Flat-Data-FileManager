@@ -1,0 +1,48 @@
+﻿@page "/counter"
+@using Amazon;
+@using Amazon.S3;
+@using Amazon.S3.Model;
+@using Amazon.S3.Transfer;
+@using System.Text;
+@using System.Text.Json;
+@using Syncfusion.Blazor.FileManager;
+@inject IJSRuntime JsRuntime;
+<div class="control-section">
+	@* Initialization of default File Manager component *@
+	@if(directoryContentList != null)
+    {
+        <SfFileManager TValue="FileManagerDirectoryContent" FileData="directoryContentList">
+            <FileManagerEvents TValue="FileManagerDirectoryContent"></FileManagerEvents>
+        </SfFileManager>
+    }
+	@if(directoryContentList == null)
+    {
+		<h1>Waiting for server response to get the initial object of FileManager component...</h1>
+    }
+</div>
+@code{
+	public List<FileManagerDirectoryContent> directoryContentList;
+	public HttpClient HttpClientInstance = new HttpClient();
+	public List<FileManagerDirectoryContent> Data { get; set; }
+	static IAmazonS3 client;
+	static ListObjectsResponse amazonresponse;
+	protected override async Task OnInitializedAsync()
+	{
+		//Demo code to get amazon S3 bucket object in the form of directory content
+		var httpContent = new StringContent("/", System.Text.Encoding.UTF8, "application/json");
+        var response = await HttpClientInstance.PostAsync("http://localhost:62869/api/AmazonS3Provider/AmazonS3Fileoperations", httpContent);
+		var jsonSerializerOptions = new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        };
+        string jsonResponse = await response.Content.ReadAsStringAsync();
+        directoryContentList = JsonSerializer.Deserialize<List<FileManagerDirectoryContent>>(jsonResponse, jsonSerializerOptions);
+		Data = directoryContentList;
+
+		// Get Amazon S3 client object.
+		// client = new AmazonS3Client("AKIAWH6GYCX3QHD3VSEP", "DL/HmwoO3NHjatmugOLneok9I3XU05ZpnJ7p+FkW", RegionEndpoint.GetBySystemName("us-east-1"));
+		// ListObjectsRequest request = new ListObjectsRequest { BucketName = "syncfusion-filemanager" };
+		// amazonresponse = await client.ListObjectsAsync(request);
+	}
+}
+
