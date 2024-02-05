@@ -12,7 +12,7 @@
 	@if(directoryContentList != null)
     {
         <SfFileManager TValue="FileManagerDirectoryContent" FileData="directoryContentList">
-            <FileManagerEvents TValue="FileManagerDirectoryContent"></FileManagerEvents>
+			<FileManagerEvents TValue="FileManagerDirectoryContent" BeforeImageLoad="BeforeImageLoad"></FileManagerEvents>
         </SfFileManager>
     }
 	@if(directoryContentList == null)
@@ -30,7 +30,7 @@
 	{
 		//Demo code to get amazon S3 bucket object in the form of directory content
 		var httpContent = new StringContent("/", System.Text.Encoding.UTF8, "application/json");
-        var response = await HttpClientInstance.PostAsync("http://localhost:62869/api/AmazonS3Provider/AmazonS3Fileoperations", httpContent);
+		var response = await HttpClientInstance.PostAsync("https://localhost:62870/api/AmazonS3Provider/AmazonS3Fileoperations", httpContent);
 		var jsonSerializerOptions = new JsonSerializerOptions
         {
             PropertyNameCaseInsensitive = true
@@ -43,6 +43,10 @@
 		// client = new AmazonS3Client("AKIAWH6GYCX3QHD3VSEP", "DL/HmwoO3NHjatmugOLneok9I3XU05ZpnJ7p+FkW", RegionEndpoint.GetBySystemName("us-east-1"));
 		// ListObjectsRequest request = new ListObjectsRequest { BucketName = "syncfusion-filemanager" };
 		// amazonresponse = await client.ListObjectsAsync(request);
+	}
+	public void BeforeImageLoad(BeforeImageLoadEventArgs<FileManagerDirectoryContent> args)
+	{
+		args.ImageUrl = "https://localhost:62870/api/AmazonS3Provider/AmazonS3GetImage" + args.ImageUrl;
 	}
 }
 

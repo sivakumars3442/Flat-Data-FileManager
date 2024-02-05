@@ -6,7 +6,7 @@
 <div class="control-section">
 	@* Initialization of default File Manager component *@
 	<SfFileManager TValue="FileManagerDirectoryContent" FileData="Data">
-		<FileManagerEvents TValue="FileManagerDirectoryContent" FileOperations="Operations"></FileManagerEvents>
+		<FileManagerEvents TValue="FileManagerDirectoryContent" FileOperations="Operations" FileSelection="FileSelection" FileSelected="FileSelected"></FileManagerEvents>
 	</SfFileManager>
 </div>
 @code{
@@ -16,12 +16,20 @@
 		Data = await GetFlatFileEntries();
 	}
 	public void Operations(FileOperationsEventArgs<FileManagerDirectoryContent> args)
-    {
-        if (args.Action == "read")
-        {
+	{
+		if (args.Action == "read")
+		{
 			args.Cancel = true;
 			args.Response = FileService.Read(args.Path, args.DataSource, args.FileDetails);
-        }
+		}
+	}
+	public void FileSelected(FileSelectEventArgs<FileManagerDirectoryContent> args)
+	{
+		
+	}
+	public void FileSelection(FileSelectionEventArgs<FileManagerDirectoryContent> args)
+    {
+        
     }
 	private async Task<List<FileManagerDirectoryContent>> GetFlatFileEntries()
 	{
