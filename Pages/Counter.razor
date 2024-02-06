@@ -6,43 +6,56 @@
 @using System.Text;
 @using System.Text.Json;
 @using Syncfusion.Blazor.FileManager;
+@using TestSyncfusion.Data;
+@inject CloudService CloudService;
+@inject AmazonS3FileProvider AmazonS3FileProvider;
 @inject IJSRuntime JsRuntime;
 <div class="control-section">
 	@* Initialization of default File Manager component *@
-	@if(directoryContentList != null)
-    {
-        <SfFileManager TValue="FileManagerDirectoryContent" FileData="directoryContentList">
+	@if (directoryContentList != null)
+	{
+		<SfFileManager TValue="FileManagerDirectoryContent" FileData="directoryContentList">
 			<FileManagerEvents TValue="FileManagerDirectoryContent" BeforeImageLoad="BeforeImageLoad"></FileManagerEvents>
-        </SfFileManager>
-    }
-	@if(directoryContentList == null)
-    {
+		</SfFileManager>
+	}
+	@if (directoryContentList == null)
+	{
 		<h1>Waiting for server response to get the initial object of FileManager component...</h1>
-    }
+	}
 </div>
 @code{
 	public List<FileManagerDirectoryContent> directoryContentList;
+	public List<FileManagerDirectoryContent> Data = new List<FileManagerDirectoryContent>();
 	public HttpClient HttpClientInstance = new HttpClient();
-	public List<FileManagerDirectoryContent> Data { get; set; }
-	static IAmazonS3 client;
-	static ListObjectsResponse amazonresponse;
 	protected override async Task OnInitializedAsync()
 	{
-		//Demo code to get amazon S3 bucket object in the form of directory content
-		var httpContent = new StringContent("/", System.Text.Encoding.UTF8, "application/json");
-		var response = await HttpClientInstance.PostAsync("https://localhost:62870/api/AmazonS3Provider/AmazonS3Fileoperations", httpContent);
-		var jsonSerializerOptions = new JsonSerializerOptions
-        {
-            PropertyNameCaseInsensitive = true
-        };
-        string jsonResponse = await response.Content.ReadAsStringAsync();
-        directoryContentList = JsonSerializer.Deserialize<List<FileManagerDirectoryContent>>(jsonResponse, jsonSerializerOptions);
-		Data = directoryContentList;
-
-		// Get Amazon S3 client object.
-		// client = new AmazonS3Client("AKIAWH6GYCX3QHD3VSEP", "DL/HmwoO3NHjatmugOLneok9I3XU05ZpnJ7p+FkW", RegionEndpoint.GetBySystemName("us-east-1"));
+		//Registory Amazon credential
+		// AmazonS3FileProvider.bucketName = "syncfusion-filemanager";
+		// AmazonS3FileProvider.client = new AmazonS3Client("AKIAWH6GYCX3QHD3VSEP", "DL/HmwoO3NHjatmugOLneok9I3XU05ZpnJ7p+FkW", RegionEndpoint.GetBySystemName("us-east-1"));
 		// ListObjectsRequest request = new ListObjectsRequest { BucketName = "syncfusion-filemanager" };
-		// amazonresponse = await client.ListObjectsAsync(request);
+		// AmazonS3FileProvider.response = await AmazonS3FileProvider.client.ListObjectsAsync(request);
+		// AmazonS3FileProvider.RootName = AmazonS3FileProvider.response.S3Objects.Where(x => x.Key.Split(".").Length != 2).First().Key;
+
+
+		// List<FileManagerDirectoryContent> FileData = new List<FileManagerDirectoryContent>();
+		// var data = AmazonS3FileProvider.GetFile("/", false, null);
+		// List<string> SubFolders = AmazonS3FileProvider.initialResponse.CommonPrefixes;
+		// for (int i = 0; i < SubFolders.Count; i++)
+		// {
+		// 	string commonPrefix = SubFolders[i];
+		// 	var index = commonPrefix.IndexOf('/');
+		// 	var path = commonPrefix.Substring(index);
+		// 	data.AddRange(AmazonS3FileProvider.GetFile(path, false, null));
+
+		// 	// Get the additional files and add them to the end of the list
+		// 	List<string> NestedFiles = AmazonS3FileProvider.initialResponse.CommonPrefixes;
+		// 	SubFolders.AddRange(NestedFiles);
+		// }
+		// Data = data.Cast<FileManagerDirectoryContent>().ToList();
+
+		await CloudService.GetData();
+		var data = CloudService.FileData;
+
 	}
 	public void BeforeImageLoad(BeforeImageLoadEventArgs<FileManagerDirectoryContent> args)
 	{

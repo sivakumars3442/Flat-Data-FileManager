@@ -48,6 +48,7 @@ namespace TestSyncfusion.Data
 			}
 			else
 			{
+				var id = fileDetails.Length > 0 ? fileDetails[0].Id : "";
 				response.CWD = dataSource
 					.Where(x => x.Id == fileDetails[0].Id)
 					.Select(x => new FileManagerDirectoryContent()
