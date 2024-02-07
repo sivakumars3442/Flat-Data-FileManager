@@ -1,9 +1,8 @@
-﻿using Microsoft.Extensions.FileProviders;
-using Syncfusion.Blazor.FileManager;
+﻿using Syncfusion.Blazor.FileManager;
 
 namespace TestSyncfusion.Data
 {
-	public class FileService
+	public class CloudServiceOperations
 	{
 		public FileManagerResponse<FileManagerDirectoryContent> Read(string path, List<FileManagerDirectoryContent> dataSource, FileManagerDirectoryContent[] fileDetails)
 		{
@@ -86,6 +85,5 @@ namespace TestSyncfusion.Data
 			}
 			return response;
 		}
-
 	}
 }

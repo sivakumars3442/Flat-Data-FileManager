@@ -1,7 +1,7 @@
 ﻿using Amazon.S3;
 using Amazon.S3.Model;
 using Amazon.S3.Transfer;
-using Syncfusion.EJ2.FileManager.Base;
+using Syncfusion.Blazor.FileManager;
 using Amazon;
 using Microsoft.AspNetCore.Mvc;
 using System.IO.Compression;
@@ -72,7 +72,7 @@ namespace TestSyncfusion.Data
 			FileManagerDirectoryContent cwd = new FileManagerDirectoryContent();
 			List<FileManagerDirectoryContent> files = new List<FileManagerDirectoryContent>();
 			List<FileManagerDirectoryContent> filesS3 = new List<FileManagerDirectoryContent>();
-			FileManagerResponse readResponse = new FileManagerResponse();
+			FileManagerResponse<FileManagerDirectoryContent> readResponse = new FileManagerResponse<FileManagerDirectoryContent>();
 			await GetBucketList();
 			try
 			{
@@ -419,7 +419,7 @@ namespace TestSyncfusion.Data
 			}
 			catch (AmazonS3Exception amazonS3Exception) { throw amazonS3Exception; }
 		}
-		public virtual FileStreamResult GetImage(string path, string id, bool allowCompress, ImageSize size, params FileManagerDirectoryContent[] data)
+		public virtual FileStreamResult GetImage(string path, string id, bool allowCompress, params FileManagerDirectoryContent[] data)
 		{
 			try
 			{

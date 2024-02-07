@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <Compile Remove="Controllers\SampleDataController.cs" />
+    <Compile Remove="Data\AmazonS3FileProvider.cs" />
   </ItemGroup>
 
   <ItemGroup>

@@ -8,14 +8,14 @@
 @using Syncfusion.Blazor.FileManager;
 @using TestSyncfusion.Data;
 @inject CloudService CloudService;
-@inject AmazonS3FileProvider AmazonS3FileProvider;
+@inject CloudServiceOperations CloudServiceOperations;
 @inject IJSRuntime JsRuntime;
 <div class="control-section">
 	@* Initialization of default File Manager component *@
 	@if (directoryContentList != null)
 	{
 		<SfFileManager TValue="FileManagerDirectoryContent" FileData="directoryContentList">
-			<FileManagerEvents TValue="FileManagerDirectoryContent" BeforeImageLoad="BeforeImageLoad"></FileManagerEvents>
+			<FileManagerEvents TValue="FileManagerDirectoryContent" BeforeImageLoad="BeforeImageLoad" FileSelected="FileSelected" FileSelection="FileSelection" FileOperations="FileOperations"></FileManagerEvents>
 		</SfFileManager>
 	}
 	@if (directoryContentList == null)
@@ -29,37 +29,33 @@
 	public HttpClient HttpClientInstance = new HttpClient();
 	protected override async Task OnInitializedAsync()
 	{
-		//Registory Amazon credential
-		// AmazonS3FileProvider.bucketName = "syncfusion-filemanager";
-		// AmazonS3FileProvider.client = new AmazonS3Client("AKIAWH6GYCX3QHD3VSEP", "DL/HmwoO3NHjatmugOLneok9I3XU05ZpnJ7p+FkW", RegionEndpoint.GetBySystemName("us-east-1"));
-		// ListObjectsRequest request = new ListObjectsRequest { BucketName = "syncfusion-filemanager" };
-		// AmazonS3FileProvider.response = await AmazonS3FileProvider.client.ListObjectsAsync(request);
-		// AmazonS3FileProvider.RootName = AmazonS3FileProvider.response.S3Objects.Where(x => x.Key.Split(".").Length != 2).First().Key;
-
-
-		// List<FileManagerDirectoryContent> FileData = new List<FileManagerDirectoryContent>();
-		// var data = AmazonS3FileProvider.GetFile("/", false, null);
-		// List<string> SubFolders = AmazonS3FileProvider.initialResponse.CommonPrefixes;
-		// for (int i = 0; i < SubFolders.Count; i++)
-		// {
-		// 	string commonPrefix = SubFolders[i];
-		// 	var index = commonPrefix.IndexOf('/');
-		// 	var path = commonPrefix.Substring(index);
-		// 	data.AddRange(AmazonS3FileProvider.GetFile(path, false, null));
-
-		// 	// Get the additional files and add them to the end of the list
-		// 	List<string> NestedFiles = AmazonS3FileProvider.initialResponse.CommonPrefixes;
-		// 	SubFolders.AddRange(NestedFiles);
-		// }
-		// Data = data.Cast<FileManagerDirectoryContent>().ToList();
-
 		await CloudService.GetData();
 		var data = CloudService.FileData;
+		directoryContentList = CloudService.FileData;
+	}
+
+	public void FileOperations(FileOperationsEventArgs<FileManagerDirectoryContent> args)
+	{
+		if (args.Action == "read")
+		{
+			args.Cancel = true;
+			args.Response = CloudServiceOperations.Read(args.Path, args.DataSource, args.FileDetails);
+		}
+	}
+
+	public void FileSelected(FileSelectEventArgs<FileManagerDirectoryContent> args)
+	{
 
 	}
+
+	public void FileSelection(FileSelectionEventArgs<FileManagerDirectoryContent> args)
+	{
+		
+	}
+
 	public void BeforeImageLoad(BeforeImageLoadEventArgs<FileManagerDirectoryContent> args)
 	{
-		args.ImageUrl = "https://localhost:62870/api/AmazonS3Provider/AmazonS3GetImage" + args.ImageUrl;
+
 	}
 }
 

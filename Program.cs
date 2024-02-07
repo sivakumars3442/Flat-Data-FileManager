@@ -9,7 +9,7 @@ builder.Services.AddServerSideBlazor();
 builder.Services.AddSingleton<WeatherForecastService>();
 builder.Services.AddSingleton<FileService>();
 builder.Services.AddSingleton<CloudService>();
-builder.Services.AddSingleton<AmazonS3FileProvider>();
+builder.Services.AddSingleton<CloudServiceOperations>();
 builder.Services.AddSyncfusionBlazor();
 
 var app = builder.Build();
