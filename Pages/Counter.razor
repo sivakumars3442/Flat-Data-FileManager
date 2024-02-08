@@ -38,8 +38,31 @@
 	{
 		if (args.Action == "read")
 		{
-			args.Cancel = true;
 			args.Response = CloudServiceOperations.Read(args.Path, args.DataSource, args.FileDetails);
+		}
+		if (args.Action == "delete")
+		{
+			args.Response = CloudServiceOperations.Delete(args.Path, args.DataSource, args.FileDetails);
+		}
+		if (args.Action == "details")
+		{
+			args.Response = CloudServiceOperations.Details(args.Path, args.DataSource, args.FileDetails);
+		}
+		if (args.Action == "create")
+		{
+			args.Response = CloudServiceOperations.Create(args.Path, args.CreatedFolderName, args.DataSource, args.FileDetails);
+		}
+		if (args.Action == "search")
+		{
+			args.Response = CloudServiceOperations.Search(args.Path, args.SearchString, args.DataSource, args.FileDetails);
+		}
+		if(args.Action == "rename")
+        {
+            args.Response = CloudServiceOperations.Rename(args.Path, args.NewName, args.DataSource, args.FileDetails);
+        }
+		if(args.Action == "move")
+		{
+			args.Response = CloudServiceOperations.Move(args.Path, args.TargetData, args.DataSource, args.FileDetails);
 		}
 	}
 

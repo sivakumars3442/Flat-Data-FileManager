@@ -19,9 +19,36 @@
 	{
 		if (args.Action == "read")
 		{
-			args.Cancel = true;
 			args.Response = FileService.Read(args.Path, args.DataSource, args.FileDetails);
 		}
+		if(args.Action == "delete")
+		{
+			args.Response = FileService.Delete(args.Path, args.DataSource, args.FileDetails);
+		}
+		if(args.Action == "details")
+		{
+			args.Response = FileService.Details(args.Path, args.DataSource, args.FileDetails);
+		}
+		if(args.Action == "create")
+		{
+			args.Response = FileService.Create(args.Path, args.CreatedFolderName, args.DataSource, args.FileDetails);
+		}
+		if(args.Action == "search")
+		{
+			args.Response = FileService.Search(args.Path, args.SearchString, args.DataSource, args.FileDetails);
+		}
+		if(args.Action == "rename")
+		{
+			args.Response = FileService.Rename(args.Path, args.NewName, args.DataSource, args.FileDetails);
+		}
+		if(args.Action == "move")
+		{
+			args.Response = FileService.Move(args.Path, args.TargetData, args.DataSource, args.FileDetails);
+		}
+		if(args.Action == "copy")
+        {
+            args.Response = FileService.Copy(args.Path, args.TargetData, args.DataSource, args.FileDetails);
+        }
 	}
 	public void FileSelected(FileSelectEventArgs<FileManagerDirectoryContent> args)
 	{

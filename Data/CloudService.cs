@@ -25,7 +25,7 @@ namespace TestSyncfusion.Data
 		TransferUtility fileTransferUtility = new TransferUtility(client);
 		public async Task GetData()
 		{
-			await RegisterAmazonS3("syncfusion-filemanager", "AKIAWH6GYCX3QHD3VSEP", "DL/HmwoO3NHjatmugOLneok9I3XU05ZpnJ7p+FkW", "us-east-1");
+			await RegisterAmazonS3("syncfusion-filemanager", "AKIAWH6GYCX3TRSSCIKD", "ULZsRjDXcztjT+5uji8jRjBZQRcucyOn4Am37N+E", "us-east-1");
 			await GetFile("/", false, null);
 			List<string> SubFolders = initialResponse != null ? initialResponse.CommonPrefixes : new List<string>();
 			for (int i = 0; i < SubFolders.Count; i++)
