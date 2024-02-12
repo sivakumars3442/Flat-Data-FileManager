@@ -10,7 +10,7 @@ namespace TestSyncfusion.Data
 {
 	public class CloudService
 	{
-		public static string bucketName = "syncfusion-filemanager";
+		public static string bucketName = "";
 		public List<FileManagerDirectoryContent> FileData = new List<FileManagerDirectoryContent>();
 		public static IAmazonS3? client;
 		public static ListObjectsResponse? response;
@@ -25,7 +25,7 @@ namespace TestSyncfusion.Data
 		TransferUtility fileTransferUtility = new TransferUtility(client);
 		public async Task GetData()
 		{
-			await RegisterAmazonS3("syncfusion-filemanager", "AKIAWH6GYCX3TRSSCIKD", "ULZsRjDXcztjT+5uji8jRjBZQRcucyOn4Am37N+E", "us-east-1");
+			await RegisterAmazonS3("bucketName", "awsAccessKeyId", "awsSecretAccessKey", "bucketRegion");
 			await GetFile("/", false, null);
 			List<string> SubFolders = initialResponse != null ? initialResponse.CommonPrefixes : new List<string>();
 			for (int i = 0; i < SubFolders.Count; i++)
