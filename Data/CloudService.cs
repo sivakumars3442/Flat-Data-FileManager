@@ -10,8 +10,8 @@ namespace TestSyncfusion.Data
 {
 	public class CloudService
 	{
-		public static string bucketName = "";
-		public List<FileManagerDirectoryContent> FileData = new List<FileManagerDirectoryContent>();
+		public static string bucketName = "syncfusion-filemanager";
+		public List<FileManagerDirectoryContent>? FileData;
 		public static IAmazonS3? client;
 		public static ListObjectsResponse? response;
 		public ListObjectsResponse? initialResponse;
@@ -25,15 +25,16 @@ namespace TestSyncfusion.Data
 		TransferUtility fileTransferUtility = new TransferUtility(client);
 		public async Task GetData()
 		{
+			FileData = new List<FileManagerDirectoryContent>();
 			await RegisterAmazonS3("bucketName", "awsAccessKeyId", "awsSecretAccessKey", "bucketRegion");
-			await GetFile("/", false, null);
+            await GetFile("/", false);
 			List<string> SubFolders = initialResponse != null ? initialResponse.CommonPrefixes : new List<string>();
 			for (int i = 0; i < SubFolders.Count; i++)
 			{
 				string commonPrefix = SubFolders[i];
 				var index = commonPrefix.IndexOf('/');
 				var path = commonPrefix.Substring(index);
-				await GetFile(path, false, null);
+				await GetFile(path, false);
 
 				// Get the additional files and add them to the end of the list
 				List<string> NestedFiles = initialResponse != null ? initialResponse.CommonPrefixes : new List<string>();
@@ -66,7 +67,7 @@ namespace TestSyncfusion.Data
 			catch (AmazonS3Exception amazonS3Exception) { throw amazonS3Exception; }
 		}
 
-		public async Task GetFile(string path, bool showHiddenItems, params FileManagerDirectoryContent[] data)
+		public async Task GetFile(string path, bool showHiddenItems)
 		{
 			List<FileManagerDirectoryContent> myList = new List<FileManagerDirectoryContent>();
 			FileManagerDirectoryContent cwd = new FileManagerDirectoryContent();

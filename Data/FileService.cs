@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.FileProviders;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Syncfusion.Blazor.FileManager;
 using System.Xml.Linq;
@@ -7,7 +8,9 @@ namespace TestSyncfusion.Data
 {
 	public class FileService
 	{
-		public FileManagerResponse<FileManagerDirectoryContent> Read(string path, List<FileManagerDirectoryContent> dataSource, FileManagerDirectoryContent[] fileDetails)
+        List<FileManagerDirectoryContent> copyFiles = new List<FileManagerDirectoryContent>();
+
+        public FileManagerResponse<FileManagerDirectoryContent> Read(string path, List<FileManagerDirectoryContent> dataSource, FileManagerDirectoryContent[] fileDetails)
 		{
 			FileManagerResponse<FileManagerDirectoryContent> response = new FileManagerResponse<FileManagerDirectoryContent>();
 			if (path == "/")
@@ -218,37 +221,133 @@ namespace TestSyncfusion.Data
 			return response;
 		}
 
-		public FileManagerResponse<FileManagerDirectoryContent> Copy(string path, FileManagerDirectoryContent targetData, List<FileManagerDirectoryContent> dataSource, FileManagerDirectoryContent[] fileDetails)
+		public FileManagerResponse<FileManagerDirectoryContent> Copy(string path, FileManagerDirectoryContent targetData, List<FileManagerDirectoryContent> dataSource, FileManagerDirectoryContent[] data)
 		{
-			FileManagerResponse<FileManagerDirectoryContent> response = new FileManagerResponse<FileManagerDirectoryContent>();
-			response.Files = new List<FileManagerDirectoryContent>();
-			foreach (FileManagerDirectoryContent file in fileDetails)
-			{
-				//FileManagerDirectoryContent CopiedFile = dataSource.Select(x => x as FileManagerDirectoryContent).Where(x => x.Name == file.Name).FirstOrDefault();
-				//CopiedFile.Id = (dataSource.Select(x => x as FileManagerDirectoryContent).Select(x => x.Id).ToArray().Select(int.Parse).ToArray().Max() + 1).ToString();
-				//CopiedFile.ParentId = targetData.Id;
-				//CopiedFile.FilterPath = targetData.FilterPath + targetData.Name + "/";
-				//CopiedFile.FilterId = targetData.FilterId + targetData.Id + "/";
-				//response.Files.Add(CopiedFile);
-				dataSource.Add(new FileManagerDirectoryContent()
+            FileManagerResponse<FileManagerDirectoryContent> copyResponse = new FileManagerResponse<FileManagerDirectoryContent>();
+            List<string> children = dataSource.Where(x => x.ParentId == data[0].Id).Select(x => x.Id).ToList();
+            if (children.IndexOf(targetData.Id) != -1 || data[0].Id == targetData.Id)
+            {
+                ErrorDetails er = new ErrorDetails();
+                er.Code = "400";
+                er.Message = "The destination folder is the subfolder of the source folder.";
+                copyResponse.Error = er;
+                return copyResponse;
+            }
+            foreach (FileManagerDirectoryContent item in data)
+            {
+                try
+                {
+                    int idValue = dataSource.Select(x => x as FileManagerDirectoryContent).Select(x => x.Id).ToArray().Select(int.Parse).ToArray().Max();
+                    if (item.IsFile)
+                    {
+                        // Copy the file
+                        List<FileManagerDirectoryContent> i = dataSource.Where(x => x.Id == item.Id).Select(x => x).ToList();
+                        FileManagerDirectoryContent CreateData = new FileManagerDirectoryContent()
+                        {
+                            Id = (idValue + 1).ToString(),
+                            Name = item.Name,
+                            Size = i[0].Size,
+                            DateCreated = DateTime.Now,
+                            DateModified = DateTime.Now,
+                            Type = i[0].Type,
+                            HasChild = false,
+                            ParentId = targetData.Id,
+                            IsFile = true,
+                            FilterPath = targetData.FilterPath + targetData.Name + "/",
+                            FilterId = targetData.FilterId + targetData.Id + "/"
+                        };
+                        copyFiles.Add(CreateData);
+						dataSource.Add(CreateData);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("An error occurred: " + e.Message);
+                    return null;
+                }
+            }
+            foreach (FileManagerDirectoryContent item in data)
+            {
+                try
+                {
+                    if (!item.IsFile)
+                    {
+                        this.copyFolderItems(item, targetData, dataSource);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("An error occurred: " + e.Message);
+                    return null;
+                }
+            }
+            copyResponse.Files = copyFiles;
+            return copyResponse;
+        }
+
+        public void copyFolderItems(FileManagerDirectoryContent item, FileManagerDirectoryContent target, List<FileManagerDirectoryContent> dataSource)
+        {
+            if (!item.IsFile)
+            {
+                int idVal = dataSource.Select(x => x as FileManagerDirectoryContent).Select(x => x.Id).ToArray().Select(int.Parse).ToArray().Max();
+                List<FileManagerDirectoryContent> i = dataSource.Where(x => x.Id == item.Id).Select(x => x).ToList();
+                FileManagerDirectoryContent CreateData = new FileManagerDirectoryContent()
+                {
+                    Id = (idVal + 1).ToString(),
+                    Name = item.Name,
+                    Size = 0,
+                    DateCreated = DateTime.Now,
+                    DateModified = DateTime.Now,
+                    Type = "folder",
+                    HasChild = false,
+                    ParentId = target.Id,
+                    IsFile = false,
+                    FilterPath = target.FilterPath + target.Name + "/",
+                    FilterId = target.FilterId + target.Id + "/"
+                };
+                copyFiles.Add(CreateData);
+				dataSource.Add(CreateData);
+				if(target.HasChild == false)
 				{
-					Id = (dataSource.Select(x => x as FileManagerDirectoryContent).Select(x => x.Id).ToArray().Select(int.Parse).ToArray().Max() + 1).ToString(),
-					Name = file.Name,
-					Size = file.Size,
-					DateCreated = file.DateCreated,
-					DateModified = file.DateModified,
-					Type = file.Type,
-					HasChild = file.HasChild,
-					ParentId = targetData.Id,
-					FilterPath = targetData.FilterPath + targetData.Name + "/",
-					FilterId = targetData.FilterId + targetData.Id + "/",
-					IsFile = file.IsFile,
-				});
-				response.Files.Add(dataSource.Last());
-			}
-			return response;
-		}
+					dataSource.Where(x => x.Id == target.Id).Select(x => x).ToList()[0].HasChild = true;
+				}
+            }
+            FileManagerDirectoryContent[] childs = dataSource.Where(x => x.ParentId == item.Id).Select(x => x).ToArray();
+            int idValue = dataSource.Select(x => x as FileManagerDirectoryContent).Select(x => x.Id).ToArray().Select(int.Parse).ToArray().Max();
+            if (childs.Length > 0)
+            {
+                foreach (FileManagerDirectoryContent child in childs)
+                {
+                    if (child.IsFile)
+                    {
+                        int idVal = dataSource.Select(x => x as FileManagerDirectoryContent).Select(x => x.Id).ToArray().Select(int.Parse).ToArray().Max();
 
-
-	}
+                        // Copy the file
+                        FileManagerDirectoryContent CreateData = new FileManagerDirectoryContent()
+                        {
+                            Id = (idVal + 1).ToString(),
+                            Name = child.Name,
+                            Size = child.Size,
+                            DateCreated = DateTime.Now,
+                            DateModified = DateTime.Now,
+                            Type = child.Type,
+                            HasChild = false,
+                            ParentId = idValue.ToString(),
+                            IsFile = true,
+                            FilterPath = target.FilterPath + target.Name + "/",
+                            FilterId = target.FilterId + target.Id + "/"
+                        };
+						dataSource.Add(CreateData);
+                    }
+                }
+                foreach (FileManagerDirectoryContent child in childs)
+                {
+                    if (!child.IsFile)
+                    {
+                        this.copyFolderItems(child, dataSource.Where(x => x.Id == (idValue).ToString()).Select(x => x).ToArray()[0], dataSource);
+                    }
+                }
+            }
+        }
+    }
 }

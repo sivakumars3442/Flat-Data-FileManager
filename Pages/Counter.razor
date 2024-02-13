@@ -12,57 +12,59 @@
 @inject IJSRuntime JsRuntime;
 <div class="control-section">
 	@* Initialization of default File Manager component *@
-	@if (directoryContentList != null)
+	@if (Data != null)
 	{
-		<SfFileManager TValue="FileManagerDirectoryContent" FileData="directoryContentList">
-			<FileManagerEvents TValue="FileManagerDirectoryContent" BeforeImageLoad="BeforeImageLoad" FileSelected="FileSelected" FileSelection="FileSelection" FileOperations="FileOperations"></FileManagerEvents>
+		<SfFileManager TValue="FileManagerDirectoryContent">
+			<FileManagerEvents TValue="FileManagerDirectoryContent" BeforeImageLoad="BeforeImageLoad" FileSelected="FileSelected" FileSelection="FileSelection" OnSend=onSend></FileManagerEvents>
 		</SfFileManager>
 	}
-	@if (directoryContentList == null)
+	@if (Data == null)
 	{
-		<h1>Waiting for server response to get the initial object of FileManager component...</h1>
+		<h1>Waiting for Injected Amazon service response to get the initial response of FileManager component...</h1>
 	}
 </div>
 @code{
-	public List<FileManagerDirectoryContent> directoryContentList;
-	public List<FileManagerDirectoryContent> Data = new List<FileManagerDirectoryContent>();
+	public List<FileManagerDirectoryContent>? Data;
 	public HttpClient HttpClientInstance = new HttpClient();
 	protected override async Task OnInitializedAsync()
 	{
 		await CloudService.GetData();
-		var data = CloudService.FileData;
-		directoryContentList = CloudService.FileData;
+		Data = CloudService.FileData;
 	}
 
-	public void FileOperations(FileOperationsEventArgs<FileManagerDirectoryContent> args)
+	public void onSend(BeforeSendEventArgs args)
 	{
 		if (args.Action == "read")
 		{
-			args.Response = CloudServiceOperations.Read(args.Path, args.DataSource, args.FileDetails);
+			args.Response = CloudServiceOperations.Read(args.Path, Data, args.FileDetails);
 		}
-		if (args.Action == "delete")
+		if(args.Action == "delete")
 		{
-			args.Response = CloudServiceOperations.Delete(args.Path, args.DataSource, args.FileDetails);
+			args.Response = CloudServiceOperations.Delete(args.Path, Data, args.FileDetails);
 		}
-		if (args.Action == "details")
+		if(args.Action == "details")
 		{
-			args.Response = CloudServiceOperations.Details(args.Path, args.DataSource, args.FileDetails);
+			args.Response = CloudServiceOperations.Details(args.Path, Data, args.FileDetails);
 		}
-		if (args.Action == "create")
+		if(args.Action == "create")
 		{
-			args.Response = CloudServiceOperations.Create(args.Path, args.CreatedFolderName, args.DataSource, args.FileDetails);
+			args.Response = CloudServiceOperations.Create(args.Path, args.CreatedFolderName, Data, args.FileDetails);
 		}
-		if (args.Action == "search")
+		if(args.Action == "search")
 		{
-			args.Response = CloudServiceOperations.Search(args.Path, args.SearchString, args.DataSource, args.FileDetails);
+			args.Response = CloudServiceOperations.Search(args.Path, args.SearchString, Data, args.FileDetails);
 		}
 		if(args.Action == "rename")
-        {
-            args.Response = CloudServiceOperations.Rename(args.Path, args.NewName, args.DataSource, args.FileDetails);
-        }
+		{
+			args.Response = CloudServiceOperations.Rename(args.Path, args.NewName, Data, args.FileDetails);
+		}
 		if(args.Action == "move")
 		{
-			args.Response = CloudServiceOperations.Move(args.Path, args.TargetData, args.DataSource, args.FileDetails);
+			args.Response = CloudServiceOperations.Move(args.Path, args.TargetData, Data, args.FileDetails);
+		}
+		if(args.Action == "copy")
+		{
+			args.Response = CloudServiceOperations.Copy(args.Path, args.TargetData, Data, args.FileDetails);
 		}
 	}
 

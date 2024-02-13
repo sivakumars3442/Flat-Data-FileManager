@@ -5,11 +5,11 @@
 @* Replace the hosted port number in the place of "{port}" *@
 
 <SfFileManager TValue="FileManagerDirectoryContent">
-		<FileManagerAjaxSettings Url="https://localhost:62871/api/AmazonS3Provider/AmazonS3Fileoperations"
-								 UploadUrl="https://localhost:62871/api/AmazonS3Provider/AmazonS3Upload"
-								 DownloadUrl="https://localhost:62871/api/AmazonS3Provider/AmazonS3Download"
-								 GetImageUrl="https://localhost:62871/api/AmazonS3Provider/AmazonS3GetImage">
-		</FileManagerAjaxSettings>
+    <FileManagerAjaxSettings Url="https://localhost:62870/api/FirebaseProvider/FirebaseRealtimeFileOperations"
+                             UploadUrl="https://localhost:62870/api/FirebaseProvider/FirebaseRealtimeUpload"
+                             DownloadUrl="https://localhost:62870/api/FirebaseProvider/FirebaseRealtimeDownload"
+                             GetImageUrl="https://localhost:62870/api/FirebaseProvider/FirebaseRealtimeGetImage">
+    </FileManagerAjaxSettings>
 	<FileManagerEvents TValue="FileManagerDirectoryContent" BeforeImageLoad="@BeforeImageLoad" BeforeDownload="BeforeDownload"></FileManagerEvents>
 </SfFileManager>
 @code{
